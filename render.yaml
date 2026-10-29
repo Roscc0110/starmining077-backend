@@ -1,0 +1,26 @@
+# Render Blueprint — despliegue con 1 clic (Deploy to Render)
+# Uso: sube este repo a GitHub, luego abre:
+#   https://render.com/deploy?repo=https://github.com/TU_USUARIO/starmining077
+# Render leerá este archivo y configurará todo automáticamente.
+# Los secretos (sync: false) los pegas a mano en el dashboard de Render tras el despliegue.
+
+services:
+  - type: web
+    name: starmining077-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: FEE_ASSET
+        value: TON
+      - key: BOT_TOKEN
+        sync: false   # pega tu token de @BotFather a mano en Render
+      - key: CRYPTOPAY_TOKEN
+        sync: false   # pega tu token de @CryptoBot (/pay) a mano
+      - key: BOT_USERNAME
+        sync: false   # ej: Starmining077Bot
