@@ -87,10 +87,19 @@ app.use(express.static(path.join(__dirname, 'public'))); // sirve la Mini App (p
 function auth(req, res, next) {
   const initData = (req.body && req.body.initData) || req.query.initData;
   const v = verifyInitData(initData);
-  if (!v.ok) return res.status(401).json({ error: v.error });
-  req.userId = String(v.user.id);
-  req.user = v.user;
-  next();
+  if (v.ok) {
+    req.userId = String(v.user.id);
+    req.user = v.user;
+    return next();
+  }
+  // Modo invitado: si Telegram no pasa initData, se identifica por device_id (localStorage del frontend).
+  const deviceId = (req.body && req.body.device_id) || req.query.device_id;
+  if (deviceId) {
+    req.userId = 'guest_' + String(deviceId).slice(0, 32);
+    req.user = { id: req.userId, first_name: 'Invitado', guest: true };
+    return next();
+  }
+  return res.status(401).json({ error: v.error + ' (y no se envio device_id)' });
 }
 
 // ---------- Endpoints ----------
